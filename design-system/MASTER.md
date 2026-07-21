@@ -1,38 +1,23 @@
-# Jadal Design System — Source of Truth
+# Jadal Design System — Kinetic Brutalism × 21st (v3)
 
-## Business scope (hard constraint)
-- **Only** mobile phone / cellular device installment financing.
-- Never claim general loans, cars, home appliances, or multi-category retail.
+## Scope
+Mobile / cellular installments **only**.
 
-## Pattern
-Trust & Authority + Conversion — hero credibility → proof → phone-only solution → clear CTA.
+## ui-ux-pro-max
+- Style: Kinetic Brutalism (variance 9)
+- Pattern: App Store Style Landing + marquee proof
+- Colors override: ink `#0A0A0A` · paper `#F2F2F0` · acid `#D6FF3C` · signal `#00F0C8`
+- Type: Changa + IBM Plex Sans Arabic + JetBrains Mono
 
-## Style
-SaaS Mobile (High-Tech Boutique) · dark premium · glass nav · spacious density.
+## 21st.dev (paid) — used
+| Component | ID | Use |
+|-----------|-----|-----|
+| Neobrutalism Marquee | 737 | Phone-name strip |
+| Animated Marquee Hero | 7611 | Phone photo track |
+| Minimalist Hero | 4582 | Acid circle + mark |
+| BrutalistBentoGrid | 8015 | Why-Jadal bento |
+| Editorial Testimonial | 9637 | Voices section |
+| AI sketch | cf607412… | https://21st.dev/ai/cf607412-4ad7-42f9-9e03-e12450621f88 |
 
-## Colors (override: no AI purple)
-| Token | Hex | Use |
-|-------|-----|-----|
-| `--color-bg` | `#0B1220` | Page background |
-| `--color-surface` | `#121A2B` | Sections / glass |
-| `--color-primary` | `#F59E0B` | Brand gold / trust |
-| `--color-secondary` | `#FBBF24` | Highlights |
-| `--color-accent` | `#0D9488` | CTA / woven mark (teal) |
-| `--color-fg` | `#F8FAFC` | Text |
-| `--color-muted` | `#94A3B8` | Secondary text |
-| `--color-border` | `rgba(255,255,255,0.10)` | Borders |
-
-## Typography
-- Headings: Noto Naskh Arabic
-- Body: Noto Sans Arabic
-- Direction: RTL
-
-## Motion
-Staggered fade/slide 150–400ms · spring soft · honor `prefers-reduced-motion`.
-
-## Anti-patterns
-Playful clutter · unclear fees · purple/pink AI gradients · emoji-as-icons · cards in hero.
-
-## CTAs
-Primary: احسب قسط جوالك / تواصل معنا  
-Secondary: دخول النظام → https://jadal.aqssat.co
+## Logo
+New brutal mark: Jeem + signal bars + weave · acid lime on ink.
