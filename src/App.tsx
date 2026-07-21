@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ChevronLeft, ChevronRight, Smartphone, Shield, Zap, Ban } from 'lucide-react'
-import mark from './assets/mark.png'
+
+const MARK = '/mark.png'
 
 /** 21st: ekmas/marquee + phone names */
 const PHONE_ITEMS = [
@@ -15,14 +16,14 @@ const PHONE_ITEMS = [
   'iPhone 16',
 ]
 
-/** 21st: ravikatiyar162/hero-3 image marquee — phones only */
-const PHONE_SHOTS = [
-  'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1601784551446-20c9e09cdb0f?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80',
+/** 21st hero-3 marquee pattern — local phone cards (no hotlink) */
+const PHONE_CARDS = [
+  { name: 'iPhone 16 Pro', tone: 'bg-acid text-ink' },
+  { name: 'Galaxy S25', tone: 'bg-signal text-ink' },
+  { name: 'Pixel 9 Pro', tone: 'bg-paper text-ink' },
+  { name: 'Xiaomi 15', tone: 'bg-acid text-ink' },
+  { name: 'Honor Magic', tone: 'bg-paper text-ink' },
+  { name: 'OnePlus 13', tone: 'bg-signal text-ink' },
 ]
 
 const testimonials = [
@@ -72,7 +73,7 @@ function Header() {
     <header className="fixed inset-x-0 top-0 z-50 border-b-4 border-acid bg-ink/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 md:px-8">
         <a href="#top" className="flex items-center gap-3">
-          <img src={mark} alt="" className="h-11 w-11 border-2 border-acid bg-paper object-contain p-0.5" />
+          <img src={MARK} alt="" className="h-11 w-11 border-2 border-acid bg-paper object-contain p-0.5" />
           <span className="font-display text-2xl font-extrabold text-paper md:text-3xl">جدل</span>
         </a>
         <nav className="hidden gap-7 font-display text-sm font-bold md:flex" aria-label="القائمة">
@@ -108,47 +109,28 @@ function Header() {
 
 function Hero() {
   const reduce = useReducedMotion()
-  const shots = [...PHONE_SHOTS, ...PHONE_SHOTS]
+  const cards = [...PHONE_CARDS, ...PHONE_CARDS]
 
   return (
     <section id="top" className="slash-bg relative min-h-[100svh] overflow-hidden pt-20">
-      <div className="relative z-10 mx-auto flex max-w-[1400px] flex-col items-center px-4 pb-48 pt-16 text-center md:px-8 md:pb-56 md:pt-20">
-        <motion.p
-          initial={reduce ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-5 border-2 border-acid px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.25em] text-acid"
-        >
+      <div className="relative z-10 mx-auto flex max-w-[1400px] flex-col items-center px-4 pb-52 pt-14 text-center md:px-8 md:pb-60 md:pt-16">
+        <p className="mb-5 border-2 border-acid px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.25em] text-acid">
           cellular installments only
-        </motion.p>
+        </p>
 
-        <motion.h1
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="font-display text-[clamp(3rem,11vw,8rem)] font-extrabold leading-[0.92] tracking-tight"
-        >
+        <h1 className="font-display text-[clamp(3rem,11vw,8rem)] font-extrabold leading-[0.92] tracking-tight text-paper">
           جوالك
           <span className="mx-2 inline-block bg-acid px-2 text-ink">اليوم</span>
           <br />
           القسط لاحقاً
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={reduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="mt-7 max-w-2xl text-lg text-mute md:text-xl"
-        >
+        <p className="mt-7 max-w-2xl text-lg text-mute md:text-xl">
           جدل يموّل <strong className="text-acid">الأجهزة الخلوية فقط</strong>. لا سيارات. لا أثاث.
           لا تمويل عام — مسار أقساط واضح لجوالك.
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={reduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.22 }}
-          className="mt-9 flex flex-wrap justify-center gap-4"
-        >
+        <div className="mt-9 flex flex-wrap justify-center gap-4">
           <a
             href="#contact"
             className="inline-flex items-center gap-2 border-2 border-ink bg-acid px-7 py-4 font-display text-lg font-extrabold text-ink hard-shadow-ink transition-transform duration-100 hover:translate-x-1 hover:translate-y-1"
@@ -162,23 +144,26 @@ function Hero() {
           >
             حدود التخصص
           </a>
-        </motion.div>
+        </div>
       </div>
 
-      {/* 21st animated image marquee — phones */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_85%,transparent)]">
+      {/* 21st animated marquee hero pattern — phone cards */}
+      <div className="absolute inset-x-0 bottom-0 h-[40%] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_90%,transparent)]">
         <motion.div
           className="flex gap-4 px-4"
           animate={reduce ? undefined : { x: ['0%', '-50%'] }}
-          transition={{ ease: 'linear', duration: 36, repeat: Infinity }}
+          transition={{ ease: 'linear', duration: 28, repeat: Infinity }}
         >
-          {shots.map((src, index) => (
+          {cards.map((card, index) => (
             <div
-              key={`${src}-${index}`}
-              className="relative aspect-[3/4] h-44 shrink-0 border-4 border-acid md:h-60"
-              style={{ rotate: `${index % 2 === 0 ? -3 : 4}deg` }}
+              key={`${card.name}-${index}`}
+              className={`flex aspect-[3/4] h-44 shrink-0 flex-col justify-between border-4 border-ink p-4 hard-shadow md:h-56 ${card.tone}`}
+              style={{ rotate: `${index % 2 === 0 ? -4 : 5}deg` }}
             >
-              <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <Smartphone className="size-8" aria-hidden="true" />
+              <p className="font-display text-left text-xl font-extrabold leading-tight md:text-2xl">
+                {card.name}
+              </p>
             </div>
           ))}
         </motion.div>
@@ -195,7 +180,7 @@ function OnlyPhones() {
           {/* 21st minimalist-hero yellow circle → acid */}
           <div className="absolute z-0 h-[260px] w-[260px] rounded-full bg-acid md:h-[380px] md:w-[380px]" aria-hidden="true" />
           <img
-            src={mark}
+            src={MARK}
             alt="شعار جدل"
             className="relative z-10 w-48 border-4 border-ink bg-paper p-3 hard-shadow-ink md:w-64"
           />
@@ -411,7 +396,7 @@ function Footer() {
     <footer className="border-t-4 border-acid px-4 py-8 md:px-8">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <img src={mark} alt="" className="h-10 w-10 border-2 border-acid bg-paper object-contain" />
+          <img src={MARK} alt="" className="h-10 w-10 border-2 border-acid bg-paper object-contain" />
           <div>
             <p className="font-display text-xl font-extrabold">جدل</p>
             <p className="text-sm text-mute">تقسيط أجهزة خلوية فقط · jadal.cc</p>
