@@ -1,19 +1,7 @@
-import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { LogoMark } from './Logo'
 
-const fade = (delay: number, reduce: boolean | null) =>
-  reduce
-    ? {}
-    : {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.55, delay, ease: 'easeOut' as const },
-      }
-
 export function Hero() {
-  const reduce = useReducedMotion()
-
   return (
     <section
       id="top"
@@ -29,32 +17,23 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
-        <motion.p
-          className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-primary"
-          {...fade(0.05, reduce)}
-        >
+        <p className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-primary">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
           متخصصون في تقسيط الأجهزة الخلوية فقط
-        </motion.p>
+        </p>
 
-        <motion.h1
-          className="max-w-3xl text-4xl leading-[1.25] text-fg sm:text-5xl md:text-6xl lg:text-7xl"
-          {...fade(0.12, reduce)}
-        >
+        <h1 className="max-w-3xl text-4xl leading-[1.25] text-fg sm:text-5xl md:text-6xl lg:text-7xl">
           جوالك اليوم.
           <br />
           <span className="text-primary">أقساط واضحة</span> بلا تعقيد.
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          className="mt-6 max-w-xl text-lg leading-relaxed text-muted md:text-xl"
-          {...fade(0.2, reduce)}
-        >
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted md:text-xl">
           جدل يموّل شراء الهواتف والأجهزة الخلوية فقط — خطط أقساط شفافة، موافقة
           سريعة، وبدون وعود خارج نطاق الجوالات.
-        </motion.p>
+        </p>
 
-        <motion.div className="mt-10 flex flex-wrap items-center gap-4" {...fade(0.28, reduce)}>
+        <div className="mt-10 flex flex-wrap items-center gap-4">
           <a
             href="#contact"
             className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-accent/25 transition-all duration-200 hover:brightness-110 active:scale-[0.97]"
@@ -68,7 +47,7 @@ export function Hero() {
           >
             كيف تحصل على جوالك
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
