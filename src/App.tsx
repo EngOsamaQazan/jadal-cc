@@ -3,9 +3,14 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ChevronLeft, ChevronRight, Smartphone, Shield, Zap, Ban } from 'lucide-react'
 import { availabilityLabel, type CatalogItem } from './data/catalog'
 import { DevicePicker } from './components/DevicePicker'
-import { COMPANY } from './data/company'
+import { FloatActions } from './components/FloatActions'
+import { PayBand } from './components/PayBand'
+import { ReadyQuiz } from './components/ReadyQuiz'
+import { Stories } from './components/Stories'
+import { Visit } from './components/Visit'
+import { COMPANY, MONTHLY_INSTALLMENT_LABEL } from './data/company'
 import { useLiveCatalog } from './lib/useLiveCatalog'
-import { applyQueryWithUtm, newEventId, trackMeta } from './lib/metaPixel'
+import { applyQueryWithUtm, metaClickIds, newEventId, trackMeta } from './lib/metaPixel'
 
 const MARK = '/mark.png'
 
@@ -72,9 +77,10 @@ function Header() {
         <nav className="hidden gap-7 font-display text-sm font-bold md:flex" aria-label="القائمة">
           {[
             ['#stock', 'الأجهزة'],
-            ['#about', 'عن الشركة'],
-            ['#only', 'التخصص'],
-            ['#contact', 'تواصل'],
+            ['#visit', 'موقعنا'],
+            ['#ready', 'الجاهزية'],
+            ['#pay', 'سداد الأقساط'],
+            ['#contact', 'اطلب'],
           ].map(([href, label]) => (
             <a key={href} href={href} className="text-paper transition-colors duration-100 hover:text-acid">
               {label}
@@ -152,10 +158,11 @@ function Hero({ catalog }: { catalog: CatalogItem[] }) {
               className="flex aspect-[3/4] h-44 shrink-0 flex-col justify-between border-4 border-ink bg-paper p-0 text-ink hard-shadow md:h-56"
               style={{ rotate: `${index % 2 === 0 ? -4 : 5}deg` }}
             >
-              <img src={card.image} alt="" className="h-[70%] w-full object-contain bg-paper" />
-              <p className="px-3 pb-3 font-display text-left text-sm font-extrabold leading-tight md:text-base">
-                {card.title}
-              </p>
+              <img src={card.image} alt="" className="h-[62%] w-full object-contain bg-paper" />
+              <div className="px-3 pb-3">
+                <p className="font-display text-left text-sm font-extrabold leading-tight md:text-base">{card.title}</p>
+                <p className="mt-1 font-display text-left text-xs font-extrabold text-ink/80">{MONTHLY_INSTALLMENT_LABEL}</p>
+              </div>
             </div>
           ))}
         </motion.div>
@@ -166,22 +173,41 @@ function Hero({ catalog }: { catalog: CatalogItem[] }) {
 
 function Stock({ catalog, onRequestDevice }: { catalog: CatalogItem[]; onRequestDevice: (item: CatalogItem) => void }) {
   const [brand, setBrand] = useState('الكل')
+  const [query, setQuery] = useState('')
   const brands = useMemo(() => ['الكل', ...Array.from(new Set(catalog.map((i) => i.brand)))], [catalog])
-  const rows = (brand === 'الكل' ? catalog : catalog.filter((i) => i.brand === brand)).slice().sort(
-    (a, b) => {
-      if ((a.qty > 0) !== (b.qty > 0)) return a.qty > 0 ? -1 : 1
-      if (a.qty <= 3 && b.qty > 3) return -1
-      if (b.qty <= 3 && a.qty > 3) return 1
-      return a.qty - b.qty
-    },
-  )
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return (brand === 'الكل' ? catalog : catalog.filter((i) => i.brand === brand))
+      .filter((i) => {
+        if (!q) return true
+        const hay = `${i.title} ${i.brand} ${i.model} ${i.storageGb ?? ''} ${i.ramGb}`.toLowerCase()
+        return hay.includes(q)
+      })
+      .slice()
+      .sort((a, b) => {
+        if ((a.qty > 0) !== (b.qty > 0)) return a.qty > 0 ? -1 : 1
+        if (a.qty <= 3 && b.qty > 3) return -1
+        if (b.qty <= 3 && a.qty > 3) return 1
+        return a.qty - b.qty
+      })
+  }, [brand, catalog, query])
 
   return (
-    <section id="stock" className="border-b-4 border-acid bg-paper px-4 py-16 text-ink md:px-8 md:py-24">
+    <section id="stock" className="scroll-mt-28 border-b-4 border-acid bg-paper px-4 py-16 text-ink md:px-8 md:py-24">
       <div className="mx-auto max-w-[1400px]">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink/50">warehouse · jadal</p>
         <h2 className="mt-2 font-display text-4xl font-extrabold md:text-6xl">الأجهزة في المستودع</h2>
-        <div className="mt-6 flex flex-wrap gap-2">
+        <label className="mt-6 block max-w-xl">
+          <span className="sr-only">ابحث في الأجهزة</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ابحث: سامسونج، ريدمي، 128…"
+            className="w-full border-2 border-ink bg-paper px-4 py-3 font-display outline-none focus:bg-acid/30"
+          />
+        </label>
+        <div className="mt-4 flex flex-wrap gap-2">
           {brands.map((b) => (
             <button
               key={b}
@@ -196,9 +222,16 @@ function Stock({ catalog, onRequestDevice }: { catalog: CatalogItem[]; onRequest
           ))}
         </div>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {rows.length === 0 ? (
+            <p className="col-span-full border-2 border-ink px-4 py-8 text-center font-display text-lg font-bold">
+              لا نتائج مطابقة — جرّب بحثاً أقصر أو غيّر العلامة.
+            </p>
+          ) : null}
           {rows.map((item) => {
             const available = item.qty > 0
             const scarce = item.qty > 0 && item.qty <= 3
+            const capacity =
+              item.storageGb != null ? `${item.storageGb} جيجا · رام ${ramLabel(item)}` : ramLabel(item)
             return (
             <article
               key={item.id}
@@ -218,7 +251,10 @@ function Stock({ catalog, onRequestDevice }: { catalog: CatalogItem[]; onRequest
                     {availabilityLabel(item.qty)}
                   </span>
                 </div>
-                <p className="mt-1 font-mono text-xs text-ink/50">{item.sku}</p>
+                <p className="mt-1 text-sm font-bold text-ink/60">{capacity}</p>
+                <p className="mt-3 border-2 border-ink bg-acid px-3 py-2 font-display text-lg font-extrabold">
+                  {MONTHLY_INSTALLMENT_LABEL}
+                </p>
                 <dl className="mt-4 space-y-1 text-sm">
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink/55">التخزين</dt>
@@ -323,6 +359,13 @@ function About() {
               <a className="text-lg font-bold underline" href={`mailto:${COMPANY.email}`}>
                 {COMPANY.email}
               </a>
+            </dd>
+          </div>
+          <div>
+            <dt className="font-mono text-xs uppercase text-ink/45">ساعات الدوام</dt>
+            <dd className="mt-1 text-lg font-bold">
+              {COMPANY.hours.daysAr}
+              <span className="block text-base font-medium text-ink/70">{COMPANY.hours.clockAr}</span>
             </dd>
           </div>
           <div>
@@ -510,7 +553,7 @@ function Contact({
       const res = await fetch('/apply-api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'start', name, phone, device, eventId }),
+        body: JSON.stringify({ action: 'start', name, phone, device, eventId, ...metaClickIds() }),
       })
       const json = (await res.json()) as { ok?: boolean; id?: string; token?: string }
       if (!res.ok || !json.ok || !json.id || !json.token) {
@@ -590,6 +633,7 @@ function Contact({
                   onSelect={onSelectDevice}
                   focusNonce={deviceFocusNonce}
                 />
+                <span className="mt-1 block font-display text-sm font-extrabold">{MONTHLY_INSTALLMENT_LABEL}</span>
               </label>
               {formError ? <p className="text-sm text-rose-700">{formError}</p> : null}
               <button
@@ -642,7 +686,8 @@ export default function App() {
       <Header />
       <main>
         <Hero catalog={catalog} />
-        <About />
+        <Stories />
+        <Visit />
         <Stock
           catalog={catalog}
           onRequestDevice={(item) => {
@@ -650,9 +695,12 @@ export default function App() {
             setDeviceFocusNonce((n) => n + 1)
           }}
         />
+        <ReadyQuiz />
+        <About />
         <OnlyPhones catalog={catalog} />
         <BentoWhy />
         <Voices />
+        <PayBand />
         <Contact
           catalog={catalog}
           selectedDeviceId={selectedDeviceId}
@@ -661,6 +709,7 @@ export default function App() {
         />
       </main>
       <Footer />
+      <FloatActions />
     </div>
   )
 }

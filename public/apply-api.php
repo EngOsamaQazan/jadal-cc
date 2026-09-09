@@ -125,7 +125,44 @@ function jadal_hash_phone(string $phone): string
     return hash('sha256', strtolower($digits));
 }
 
-function jadal_capi(array $env, string $eventName, string $eventId, string $phone): void
+function jadal_norm_name_part(string $part): string
+{
+    $part = mb_strtolower(trim($part), 'UTF-8');
+    $part = preg_replace('/[^\p{L}\p{N}]+/u', '', $part) ?? '';
+    return $part;
+}
+
+/** SHA256 لـ fn/ln حسب مواصفات ميتا — بدون رقم وطني أو راتب. */
+function jadal_hash_name(string $name): array
+{
+    $tokens = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $first = jadal_norm_name_part((string) ($tokens[0] ?? ''));
+    $last = jadal_norm_name_part(implode(' ', array_slice($tokens, 1)));
+    $out = [];
+    if ($first !== '') {
+        $out['fn'] = [hash('sha256', $first)];
+    }
+    if ($last !== '') {
+        $out['ln'] = [hash('sha256', $last)];
+    } elseif ($first !== '') {
+        $out['ln'] = [hash('sha256', $first)];
+    }
+    return $out;
+}
+
+function jadal_click_id(array $body, string $key, string $cookie): string
+{
+    $raw = trim((string) ($body[$key] ?? ''));
+    if ($raw === '' && !empty($_COOKIE[$cookie])) {
+        $raw = (string) $_COOKIE[$cookie];
+    }
+    if (!preg_match('/^fb\.\d+\.\d+\.[A-Za-z0-9._-]+$/', $raw)) {
+        return '';
+    }
+    return mb_substr($raw, 0, 200);
+}
+
+function jadal_capi(array $env, string $eventName, string $eventId, string $phone, string $name, array $body): void
 {
     $pixel = preg_replace('/[^0-9]/', '', (string) ($env['META_PIXEL_ID'] ?? '1091061003303622')) ?: '1091061003303622';
     $token = trim((string) ($env['META_CAPI_ACCESS_TOKEN'] ?? ''));
@@ -137,11 +174,14 @@ function jadal_capi(array $env, string $eventName, string $eventId, string $phon
         'client_ip_address' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
         'client_user_agent' => mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 512),
     ];
-    if (!empty($_COOKIE['_fbp'])) {
-        $user['fbp'] = (string) $_COOKIE['_fbp'];
+    $user = array_merge($user, jadal_hash_name($name));
+    $fbp = jadal_click_id($body, 'fbp', '_fbp');
+    $fbc = jadal_click_id($body, 'fbc', '_fbc');
+    if ($fbp !== '') {
+        $user['fbp'] = $fbp;
     }
-    if (!empty($_COOKIE['_fbc'])) {
-        $user['fbc'] = (string) $_COOKIE['_fbc'];
+    if ($fbc !== '') {
+        $user['fbc'] = $fbc;
     }
     $event = [
         'event_name' => $eventName,
@@ -278,7 +318,7 @@ SQL;
         echo '{"ok":false}';
         exit;
     }
-    jadal_capi($env, 'Lead', jadal_event_id($body), $phone);
+    jadal_capi($env, 'Lead', jadal_event_id($body), $phone, $name, $body);
     echo json_encode(['ok' => true, 'id' => $newId, 'token' => $rawToken], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -354,7 +394,7 @@ SQL;
         echo '{"ok":false}';
         exit;
     }
-    jadal_capi($env, 'CompleteRegistration', jadal_event_id($body), (string) $clean['phone']);
+    jadal_capi($env, 'CompleteRegistration', jadal_event_id($body), (string) $clean['phone'], (string) $clean['fullName'], $body);
     echo json_encode(['ok' => true, 'id' => $saved], JSON_UNESCAPED_UNICODE);
     exit;
 }

@@ -59,6 +59,26 @@ export function trackMeta(
   window.fbq('track', event, params, { eventID: eventId })
 }
 
+/** `_fbp`/`_fbc` من الكوكي للمتصفح — أدق من كوكي PHP على مسار apply-api. */
+export function metaClickIds(): { fbp?: string; fbc?: string } {
+  if (typeof document === 'undefined') return {}
+  const cookies = Object.fromEntries(
+    document.cookie.split(';').map((part) => {
+      const i = part.indexOf('=')
+      const key = part.slice(0, i).trim()
+      const value = decodeURIComponent(part.slice(i + 1).trim())
+      return [key, value]
+    }),
+  )
+  const fbp = cookies._fbp?.startsWith('fb.') ? cookies._fbp : undefined
+  let fbc = cookies._fbc?.startsWith('fb.') ? cookies._fbc : undefined
+  if (!fbc) {
+    const fbclid = new URLSearchParams(window.location.search).get('fbclid')?.trim()
+    if (fbclid) fbc = `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`
+  }
+  return { ...(fbp ? { fbp } : {}), ...(fbc ? { fbc } : {}) }
+}
+
 export function applyQueryWithUtm(id: string, token: string): string {
   const params = new URLSearchParams(window.location.search)
   params.set('id', id)

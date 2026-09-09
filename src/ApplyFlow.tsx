@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { COMPANY } from './data/company'
-import { newEventId, trackMeta } from './lib/metaPixel'
+import { COMPANY, MONTHLY_INSTALLMENT_LABEL } from './data/company'
+import { metaClickIds, newEventId, trackMeta } from './lib/metaPixel'
 
 const MARK = '/mark.png'
 const INPUT = 'w-full border-2 border-ink bg-paper px-4 py-3 outline-none focus:bg-acid/30'
@@ -117,6 +117,7 @@ export function ApplyFlow() {
           id,
           token,
           eventId,
+          ...metaClickIds(),
           profile: {
             fullName: p.fullName,
             idNumber: p.idNumber,
@@ -162,6 +163,7 @@ export function ApplyFlow() {
         {device ? (
           <p className="mt-4 border-2 border-acid bg-paper px-3 py-2 font-display text-sm font-bold text-ink">
             الجهاز: {device}
+            <span className="mt-1 block text-ink/70">{MONTHLY_INSTALLMENT_LABEL}</span>
           </p>
         ) : null}
 

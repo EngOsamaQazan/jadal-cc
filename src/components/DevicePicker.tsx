@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { availabilityLabel, deviceLabel, type CatalogItem } from '../data/catalog'
+import { MONTHLY_INSTALLMENT_LABEL } from '../data/company'
 
 function matches(item: CatalogItem, query: string) {
   const parts = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
@@ -146,7 +147,7 @@ export function DevicePicker({ catalog, selectedId, onSelect, focusNonce = 0 }: 
                     <span className="min-w-0 flex-1">
                       <span className="block font-display text-sm font-extrabold leading-tight">{deviceLabel(item)}</span>
                       <span className="block text-xs text-ink/55">
-                        {item.brand} · {availabilityLabel(item.qty)}
+                        {item.brand} · {availabilityLabel(item.qty)} · {MONTHLY_INSTALLMENT_LABEL}
                       </span>
                     </span>
                     {isSelected ? <Check className="size-4 shrink-0" aria-hidden="true" /> : null}
